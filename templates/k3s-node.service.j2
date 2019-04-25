@@ -1,0 +1,11 @@
+[Unit]
+Description=k3s v{{ k3s_version }} node
+After=network.target
+
+[Service]
+ExecStart={% for item in groups['k3s-master'] %}/bin/k3s agent --token {{ hostvars[item].k3s_node_token.stdout }} --server https://{{ hostvars[item].ansible_default_ipv4.address }}:6443{% endfor %}
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

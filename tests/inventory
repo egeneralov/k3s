@@ -1,0 +1,14 @@
+[all]
+k3s-master-0 ansible_host=10.199.25.181
+k3s-node-0 ansible_host=10.199.25.182
+
+[k3s:children]
+k3s-master
+k3s-node
+
+[k3s-master]
+k3s-master-0
+
+[k3s-node]
+k3s-node-0
+

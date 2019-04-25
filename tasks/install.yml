@@ -1,0 +1,81 @@
+---
+
+- name: system-wide packages
+  apt:
+    name:
+      - bash-completion
+    update_cache: yes
+    cache_valid_time: 3600
+
+
+- name: download k3s binary
+  get_url:
+    url: "https://github.com/rancher/k3s/releases/download/v{{ k3s_version }}/k3s"
+    remote_src: yes
+    dest: "/bin/k3s"
+    mode: 0777
+
+
+- name: setup auto-completion
+  shell: "k3s kubectl completion bash > /etc/bash_completion.d/kubectl"
+  args:
+    creates: /etc/bash_completion.d/kubectl
+
+
+- name: place links
+  file:
+    src: /bin/k3s
+    dest: "/bin/{{ item }}"
+    state: link
+  with_items:
+    - crictl
+    - kubectl
+
+
+- name: k3s-server.service
+  template:
+    src: k3s-server.service.j2
+    dest: /etc/systemd/system/k3s-server.service
+  when: inventory_hostname in groups['k3s-master']
+  register: k3s_service_server
+
+
+- name: (re)start k3s-server.service
+  systemd:
+    name: k3s-server.service
+    enabled: yes
+    state: "{% if k3s_service_server is changed %}re{% endif %}started"
+    daemon_reload: yes
+  when: inventory_hostname in groups['k3s-master']
+
+
+- name: wait for server to be running
+  wait_for:
+    path: /var/lib/rancher/k3s/server/node-token
+    state: present
+    timeout: 60
+  when: inventory_hostname in groups['k3s-master']
+
+
+- name: Read node join token
+  shell: cat /var/lib/rancher/k3s/server/node-token
+  when: inventory_hostname in groups['k3s-master']
+  register: k3s_node_token
+  changed_when: false
+
+
+- name: k3s-node.service
+  template:
+    src: k3s-node.service.j2
+    dest: /etc/systemd/system/k3s-node.service
+  when: inventory_hostname in groups['k3s-node']
+  register: k3s_service_node
+
+
+- name: (re)start k3s-node.service
+  systemd:
+    name: k3s-node.service
+    enabled: yes
+    state: "{% if k3s_service_node is changed %}re{% endif %}started"
+    daemon_reload: yes
+  when: inventory_hostname in groups['k3s-node']

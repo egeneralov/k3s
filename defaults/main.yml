@@ -1,0 +1,24 @@
+---
+# defaults file for egeneralov.k3s
+
+k3s_version: 0.4.0
+
+k3s_cidr: 10.43.0.0/16
+k3s_master_allow_agent: true
+k3s_install_helm: true
+k3s_install_local_provisioner: true
+
+k3s_helm_version: 2.13.1
+k3s_storageclass_patch: '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+arch:
+  x86_64: amd64
+
+
+#    --kube-apiserver-arg value          Customized flag for kube-apiserver process
+#    --kube-scheduler-arg value          Customized flag for kube-scheduler process
+#    --kube-controller-arg value         Customized flag for kube-controller-manager process
+#    --kubelet-arg value                 (agent) Customized flag for kubelet process
+#    --kube-proxy-arg value              (agent) Customized flag for kube-proxy process
+#    --docker
+

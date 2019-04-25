@@ -1,0 +1,11 @@
+[Unit]
+Description=k3s v{{ k3s_version }} server
+After=network.target
+
+[Service]
+ExecStart=/bin/k3s server --bind-address {{ ansible_default_ipv4.address }} --service-cidr {{ k3s_cidr }} {% if k3s_master_allow_agent %}--node-name {{ inventory_hostname }}{% else %}--disable-agent{% endif %}
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

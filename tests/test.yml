@@ -1,0 +1,6 @@
+---
+
+- hosts: k3s
+  remote_user: root
+  roles:
+    - egeneralov.k3s

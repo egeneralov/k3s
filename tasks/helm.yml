@@ -1,0 +1,47 @@
+---
+
+- name: "helm | download v{{ k3s_helm_version }}"
+  get_url:
+    url: "https://kubernetes-helm.storage.googleapis.com/helm-v{{ k3s_helm_version }}-linux-{{ arch[ansible_architecture] }}.tar.gz"
+    dest: /tmp/
+    remote_src: yes
+
+
+- name: "helm | unarchive tgz"
+  unarchive:
+    src: "/tmp/helm-v{{ k3s_helm_version }}-linux-{{ arch[ansible_architecture] }}.tar.gz"
+    dest: "/tmp/"
+    remote_src: yes
+
+
+- name: "helm | Install binary"
+  copy:
+    remote_src: yes
+    src: "/tmp/linux-{{ arch[ansible_architecture] }}/helm"
+    dest: "/usr/local/bin/helm"
+    mode: 0777
+
+- name: "helm | copy RBAC yaml"
+  copy:
+    src: helm-rbac.yml
+    dest: /tmp/
+
+- name: "helm | set-up rbac"
+  shell: kubectl apply -f /tmp/helm-rbac.yml
+  register: k3s_cmd
+  changed_when: "'created' in k3s_cmd.stdout"
+
+- name: "helm | ~/.kube"
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: "helm | ~/.kube/config"
+  copy:
+    remote_src: yes
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /root/.kube/config
+
+- name: "helm | init --upgrade"
+  shell: helm init --service-account tiller --upgrade --wait
+  changed_when: false
