@@ -1,38 +1,52 @@
-Role Name
-=========
+# egeneralov.k3s
 
-A brief description of the role goes here.
+Install k3s cluster.
 
-Requirements
-------------
+## Disclamer
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Not for production use, testing purposes only.
 
-Role Variables
---------------
+## Requirements
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Debian-based system with systemd.
 
-Dependencies
-------------
+## Role Variables
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- **k3s_version**: `0.4.0`
+- **k3s_cidr**: `10.43.0.0/16`
+- **k3s_master_allow_agent**: `true`
+- **k3s_install_helm**: `true`
+- **k3s_install_local_provisioner**: `true`
+- **k3s_helm_version**: `2.13.1`
 
-Example Playbook
-----------------
+## Example Inventory
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+    [all]
+    k3s-master-0 ansible_host=10.199.25.181
+    k3s-node-0 ansible_host=10.199.25.182
+    
+    [k3s:children]
+    k3s-master
+    k3s-node
+    
+    [k3s-master]
+    k3s-master-0
+    
+    [k3s-node]
+    k3s-node-0
 
-    - hosts: servers
+
+## Example Playbook
+
+    - hosts: k3s
+      remote_user: root
       roles:
-         - { role: username.rolename, x: 42 }
+        - egeneralov.k3s
 
-License
--------
+## License
 
-BSD
+MIT
 
-Author Information
-------------------
+## Author Information
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Eduard Generalov <eduard@generalov.net>
