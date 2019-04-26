@@ -1,10 +1,8 @@
 # egeneralov.k3s
 
+## Not for production use, testing purposes only.
+
 Install k3s cluster.
-
-## Disclamer
-
-Not for production use, testing purposes only.
 
 ## Requirements
 
@@ -14,10 +12,12 @@ Debian-based system with systemd.
 
 - **k3s_version**: `0.4.0`
 - **k3s_cidr**: `10.43.0.0/16`
+- **k3s_helm_version**: `2.13.1`
 - **k3s_master_allow_agent**: `true`
 - **k3s_install_helm**: `true`
 - **k3s_install_local_provisioner**: `true`
-- **k3s_helm_version**: `2.13.1`
+- **k3s_no_flannel**: `false`
+- **k3s_metrics_server**: `true`
 
 ## Example Inventory
 
@@ -42,6 +42,11 @@ Debian-based system with systemd.
       remote_user: root
       roles:
         - egeneralov.k3s
+
+## Notes
+
+- You can create VM templates (without cluster setup) with `--skip-tags runtime`
+- RHEL-based systems support not planned
 
 ## License
 

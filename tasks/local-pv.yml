@@ -1,12 +1,12 @@
 ---
 
-- name: Create storageclass
+- name: "local-pv-provisioner : Create storageclass"
   shell: kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
   register: k3s_cmd
   changed_when: "'created' in k3s_cmd.stdout"
 
 
-- name: set storageclass as default
+- name: "local-pv-provisioner : set default storageclass"
   shell: "k3s kubectl patch storageclass local-path -p '{{ k3s_storageclass_patch }}'"
   register: k3s_cmd
   changed_when: "'no change' not in k3s_cmd.stdout"

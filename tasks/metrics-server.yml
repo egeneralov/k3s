@@ -1,0 +1,15 @@
+---
+
+- name: "metrics-server : install"
+  shell: "kubectl apply -f https://raw.githubusercontent.com/rancher/k3s/master/recipes/metrics-server/{{ item }}.yaml"
+  register: k3s_cmd
+  changed_when: "'created' in k3s_cmd.stdout"
+  with_items:
+    - aggregated-metrics-reader
+    - auth-delegator
+    - auth-reader
+    - metrics-apiservice
+    - metrics-server-deployment
+    - metrics-server-service
+    - resource-reader
+

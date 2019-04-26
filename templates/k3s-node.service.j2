@@ -1,9 +1,23 @@
 [Unit]
 Description=k3s v{{ k3s_version }} node
+Documentation=https://k3s.io
 After=network.target
 
 [Service]
-ExecStart={% for item in groups['k3s-master'] %}/bin/k3s agent --token {{ hostvars[item].k3s_node_token.stdout }} --server https://{{ hostvars[item].ansible_default_ipv4.address }}:6443{% endfor %}
+Type=notify
+
+ExecStartPre=-/sbin/modprobe br_netfilter
+ExecStartPre=-/sbin/modprobe overlay
+
+ExecStart={% for item in groups['k3s-master'] %}/bin/k3s agent --token {{ hostvars[item].k3s_node_token.stdout }} --server https://{{ hostvars[item].ansible_default_ipv4.address }}:6443{% endfor %}{% if k3s_no_flannel %} --no-flannel{% endif %}{% if k3s_metrics_server %} --kubelet-arg="address=0.0.0.0"{% endif %}
+
+KillMode=process
+Delegate=yes
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
 
 Restart=on-failure
 

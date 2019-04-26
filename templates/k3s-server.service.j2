@@ -1,9 +1,23 @@
 [Unit]
 Description=k3s v{{ k3s_version }} server
+Documentation=https://k3s.io
 After=network.target
 
 [Service]
-ExecStart=/bin/k3s server --bind-address {{ ansible_default_ipv4.address }} --service-cidr {{ k3s_cidr }} {% if k3s_master_allow_agent %}--node-name {{ inventory_hostname }}{% else %}--disable-agent{% endif %}
+Type=notify
+
+ExecStartPre=-/sbin/modprobe br_netfilter
+ExecStartPre=-/sbin/modprobe overlay
+
+ExecStart=/bin/k3s server --bind-address {{ ansible_default_ipv4.address }} --service-cidr {{ k3s_cidr }} {% if k3s_master_allow_agent %}--node-name {{ inventory_hostname }}{% else %}--disable-agent{% endif %}{% if k3s_no_flannel %} --no-flannel{% endif %}{% if k3s_metrics_server %} --kubelet-arg="address=0.0.0.0"{% endif %}
+
+KillMode=process
+Delegate=yes
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
 
 Restart=on-failure
 

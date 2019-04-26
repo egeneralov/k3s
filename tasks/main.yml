@@ -1,20 +1,35 @@
 ---
 # tasks file for egeneralov.k3s
 
-- name: /etc/hosts
+- name: "prepare : /etc/hosts"
   lineinfile:
     path: /etc/hosts
     line: "{{ hostvars[item].ansible_default_ipv4.address }} {{ item }}"
   with_items: "{{ groups['k3s'] }}"
+  tags:
+    - runtime
 
-- name: Set hostname
+- name: "prepare : set hostname"
   hostname:
     name: "{{ inventory_hostname }}"
+  tags:
+    - runtime
 
 - import_tasks: install.yml
 
-- include_tasks: local-pv.yml
+- name: "local-pv-provisioner : include_tasks"
+  include_tasks: local-pv.yml
   when: inventory_hostname in groups['k3s-master'] and k3s_install_local_provisioner == true
+  tags:
+    - runtime
 
-- include_tasks: helm.yml
+- name: "helm : include_tasks"
+  include_tasks: helm.yml
   when: inventory_hostname in groups['k3s-master'] and k3s_install_helm == true
+
+- name: "metrics-server : include_tasks"
+  include_tasks: metrics-server.yml
+  when: inventory_hostname in groups['k3s-master'] and k3s_metrics_server == true
+  tags:
+    - runtime
+
